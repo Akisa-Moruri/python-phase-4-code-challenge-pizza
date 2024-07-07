@@ -4,6 +4,7 @@ from sqlalchemy.orm import validates
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy_serializer import SerializerMixin
 
+
 metadata = MetaData(
     naming_convention={
         "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
@@ -69,7 +70,7 @@ class RestaurantPizza(db.Model, SerializerMixin):
     restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurants.id'), nullable=False)
     pizza_id = db.Column(db.Integer, db.ForeignKey('pizzas.id'), nullable=False)
 
-        # add serialization rules
+    # add serialization rules
     def to_dict(self):
         return {
             'id': self.id,
@@ -78,11 +79,17 @@ class RestaurantPizza(db.Model, SerializerMixin):
             'pizza_id': self.pizza_id
         }
 
-    # add validation
+    # add validation    
+    @validates('restaurant_id')
+    def validate_restaurant_id(self, key, restaurant_id):
+        if not restaurant_id:
+            raise ValueError("Restaurant ID is required")
+        return restaurant_id
+
+    
+    
+    @validates('price')
     def validate_price(self, key, price):
         if price < 1 or price > 30:
             raise ValueError("Price must be between 1 and 30")
         return price
-
-    def __repr__(self):
-        return f"<RestaurantPizza ${self.price}>"
