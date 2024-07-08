@@ -43,19 +43,19 @@ def get_restaurants():
 # Route to Get restaurant by ID
 @app.route('/restaurants/<int:id>', methods=['GET'])
 def get_restaurant(id):
-    # Step 1: Check if the restaurant exists
+    # Check if the restaurant exists
     restaurant = Restaurant.query.get(id)
     
     if restaurant is None:
-        # Step 1a: If restaurant does not exist, return 404 Not Found
+        # If restaurant does not exist, return 404 Not Found
         return {
             "error": "Restaurant not found"
         }, 404
     
-    # Step 2: Get associated RestaurantPizzas
+    # Get associated RestaurantPizzas
     restaurant_pizzas = restaurant.restaurant_pizzas
     
-    # Step 3: Convert Restaurant and RestaurantPizzas to JSON format
+    # Convert Restaurant and RestaurantPizzas to JSON format
     restaurant_json = {
         "address": restaurant.address,
         "id": restaurant.id,
@@ -78,7 +78,7 @@ def get_restaurant(id):
         }
         restaurant_json["restaurant_pizzas"].append(restaurant_pizza_json)
     
-    # Step 4: Return JSON data
+    # Return JSON data
     return restaurant_json
 
 
@@ -94,16 +94,14 @@ def delete_restaurant(id):
             "error": "Restaurant not found"
         }, 404
     
-    # Delete associated RestaurantPizzas (if not cascaded)
-        
     # SQLAlchemy ORM delete for associated RestaurantPizzas
     RestaurantPizza.query.filter_by(restaurant_id=id).delete()
     
-    # Step 3: Delete the restaurant
+    # Delete the restaurant
     db.session.delete(restaurant)
     db.session.commit()
     
-    # Step 4: Return 204 No Content response if successful
+    # Return 204 No Content response if successful
     return {}, 204
 
 
@@ -123,6 +121,7 @@ def get_pizzas():
     return jsonify(pizza_data)
 
 
+# Route to update restaurant_pizzas
 @app.route('/restaurant_pizzas', methods=['POST'])
 def create_restaurant_pizza():
     data = request.get_json()
@@ -184,3 +183,6 @@ def create_restaurant_pizza():
     }
 
     return jsonify(response_data), 201
+
+if __name__ == "__main__":
+    app.run(port=5000, debug=True)
